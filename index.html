@@ -3,6 +3,11 @@
 
 
 
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,9 +95,9 @@
         .photo-upload-label:hover { background: #0055aa; }
         .photo-upload-label input[type="file"] { display: none; }
         .photo-upload-hint { font-size: 12px; color: #777; }
-        .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .photo-item { position: relative; border: 3px solid #FFD700; border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(255,215,0,0.3); }
-        .photo-item img { width: 100%; height: 170px; object-fit: cover; display: block; }
+        .photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .photo-item { position: relative; border: 3px solid #FFD700; border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(255,215,0,0.3); display: flex; flex-direction: column; height: 100%; }
+        .photo-item img { width: 100%; height: 170px; object-fit: contain; display: block; background: #fff; padding: 5px; }
         .photo-item-label { background: rgba(0,51,102,0.82); color: #fff; font-size: 11px; padding: 3px 8px; position: absolute; bottom: 0; left: 0; right: 0; text-align: center; }
         .photo-description { width: 100%; padding: 8px; border: none; border-top: 1px solid #e0e0e0; font-size: 12px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; resize: vertical; min-height: 40px; background-color: #f8f9fa; color: #000; }
         .photo-description:focus { outline: none; background-color: #fff; }
@@ -107,11 +112,16 @@
             .container { box-shadow: none !important; padding: 15px !important; border-radius: 0 !important; max-width: 100% !important; }
             .page { display: block !important; }
             .submit-btn, .signature-upload, .add-line-btn, .line-remove-btn, .photo-upload-zone, .photo-remove-btn, #textFormatToolbar, .no-pdf { display: none !important; }
-            input[type="text"], input[type="date"] { border: none !important; background: transparent !important; height: auto !important; }
+            input[type="text"], input[type="date"] { border: none !important; background: transparent !important; height: auto !important; padding: 2px 5px !important; color: #000 !important; }
             textarea { border: none !important; background: transparent !important; }
+            .textarea-mirror { color: #000 !important; font-size: 13px !important; padding: 2px 5px !important; }
             .photo-panel { display: block !important; }
             .photo-tab-btn { display: none !important; }
-            .section-title { background: #ccc !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .photo-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+            .photo-item { page-break-inside: avoid !important; }
+            .photo-item img { object-fit: contain !important; max-width: 100% !important; height: auto !important; }
+            .section-title { background: #808080 !important; color: #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .section { border: 2px solid #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             #photoPage { page-break-before: always; }
         }
         .text-format-toolbar { position: absolute; background: #003366; border-radius: 6px; padding: 8px; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; gap: 6px; }
@@ -148,16 +158,18 @@
                 <div class="section">
                     <div class="section-title"><span>LP &amp; Train Particulars</span></div>
                     <div class="section-body"><div class="lp-grid">
-                        <div class="form-group"><label for="lpName">LP Name</label><input type="text" id="lpName" name="lpName"></div>
-                        <div class="form-group"><label for="dop">Train No.</label><input type="date" id="trainno" name="trainno"></div>
-                        <div class="form-group"><label for="trainNo">Grade</label><input type="text" id="grade" name="trainNo"></div>
-                        <div class="form-group"><label for="bpcno">Loco No</label><input type="text" id="locono" name="locono"></div>
-                        <div class="form-group"><label for="locono">DOP AS LP</label><input type="text" id="doplp" name="doplp"></div>
-                        <div class="form-group"><label for="bpc%">Load</label><input type="text" id="load" name="load"></div>
-                        <div class="form-group"><label for="grade">LP Group CLI</label><input type="text" id="lpgcli" name="grade"></div>
-                        <div class="form-group"><label for="load">BPC Details</label><input type="text" id="bpcdetail" name="bpcdetails"></div>
-                        <div class="form-group"><label for="GCLI">ALP Name</label><input type="text" id="alpname" name="alpname"></div>
-                        <div class="form-group"><label for="bpcDate">BPC Date</label><input type="date" id="bpcDate" name="bpcDate"></div>
+                        <div class="form-group"><label for="lpName">LP NAME/HQ</label><input type="text" id="lpName" name="lpName"></div>
+                        <div class="form-group"><label for="dop">Train No.</label><input type="text" id="trainno" name="trainno"></div>
+                        <div class="form-group"><label for="lpCmsId">LP CMS ID</label><input type="text" id="lpCmsId" name="lpCmsId"></div>
+                        <div class="form-group"><label for="trainNo">Loco No</label><input type="text" id="locono" name="locono"></div>
+                        <div class="form-group"><label for="bpcno">Grade</label><input type="text" id="grade" name="grade"></div>
+                        <div class="form-group"><label for="locono">Load</label><input type="text" id="load" name="load"></div>
+                        <div class="form-group"><label for="bpc%">DOP AS LP</label><input type="text" id="dopaslp" name="dopaslp"></div>
+                        <div class="form-group"><label for="grade">BPC Details</label><input type="text" id="bpcdetails" name="bpcdetails"></div>
+                        <div class="form-group"><label for="load">LP GCLI</label><input type="text" id="lpgcli" name="lpgcli"></div>
+                        <div class="form-group"><label for="GCLI">BPC DATE</label><input type="date" id="bpcdate" name="bpcdate"></div>
+                        <div class="form-group"><label for="alpCmsId">ALP Name/HQ</label><input type="text" id="alPnamehq" name="alpnamhq"></div>
+                        <div class="form-group"><label for="bpcDate">ALP CMS ID</label><input type="text" id="alpcmsid" name="alpcmsid"></div>
                         <div class="form-group"><label for="lastCounselling">LP Last Counselling</label><input type="date" id="lastCounselling" name="lastCounselling"></div>
                         <div class="form-group"><label for="schedule">Schedule</label><input type="text" id="schedule" name="schedule"></div>
                     </div></div>
@@ -165,6 +177,10 @@
                 <div class="section">
                     <div class="section-title"><span>Log Book Remarks</span><div class="button-group"><button type="button" class="add-line-btn" onclick="addLine('logBookRemarks')">+</button></div></div>
                     <div class="section-body"><div class="expandable-container" id="logBookRemarks"><div class="expandable-line" data-index="1"><span class="line-number">1.</span><textarea class="line-input auto-resize" name="logBookRemarks_1" placeholder="Enter remark line 1"></textarea><button type="button" class="line-remove-btn" onclick="removeThisLine(this,'logBookRemarks')" title="Remove">−</button></div></div></div>
+                </div>
+                <div class="section">
+                    <div class="section-title"><span>DDS Message</span><div class="button-group"><button type="button" class="add-line-btn" onclick="addLine('ddsMessage')">+</button></div></div>
+                    <div class="section-body"><div class="expandable-container" id="ddsMessage"><div class="expandable-line" data-index="1"><span class="line-number">1.</span><textarea class="line-input auto-resize" name="ddsMessage_1" placeholder="Enter DDS message line 1"></textarea><button type="button" class="line-remove-btn" onclick="removeThisLine(this,'ddsMessage')" title="Remove">−</button></div></div></div>
                 </div>
                 <div class="section">
                     <div class="section-title"><span>Chronology of Events</span><div class="button-group"><button type="button" class="add-line-btn" onclick="addLine('chronologyEvents')">+</button></div></div>
@@ -286,9 +302,40 @@
             const e=document.createElement('div'); e.className='photo-empty'; e.id='photoEmpty'+tabNum; e.textContent='No photos attached yet. Click "Add Photos" above.'; grid.appendChild(e);
         }
     }
+    function getImageDimensions(dataUrl) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = function() {
+                resolve({ width: this.width, height: this.height });
+            };
+            img.src = dataUrl;
+        });
+    }
+
+    function calculateFitDimensions(imgW, imgH, boxW, boxH) {
+        const imgRatio = imgW / imgH;
+        const boxRatio = boxW / boxH;
+        let finalW, finalH;
+
+        if (imgRatio > boxRatio) {
+            // Image is wider - fit to width
+            finalW = boxW;
+            finalH = boxW / imgRatio;
+        } else {
+            // Image is taller - fit to height
+            finalH = boxH;
+            finalW = boxH * imgRatio;
+        }
+
+        return { width: finalW, height: finalH };
+    }
+
     async function addPhotoPagesToPDF(pdf) {
-        const PW=210,PH=297,margin=5,cellW=(PW-margin*3)/2,cellH=70,rowGap=6,topStart=20;
+        const PW=210,PH=297,margin=5,cellW=(PW-margin*3)/2,cellH=70,rowGap=6,topStart=20,imgPadding=2;
+        const availableW = cellW - imgPadding*2;
+        const availableH = cellH - imgPadding*2;
         let hasPhotos=false;
+
         for (let tab=1;tab<=3;tab++) {
             const photos=photoStore[tab];
             if (!photos.length) continue;
@@ -296,16 +343,39 @@
             pdf.setFontSize(13); pdf.setFont(undefined,'bold'); pdf.setTextColor(0,51,102);
             pdf.text('Photo Set '+tab,margin,14); pdf.setDrawColor(0,51,102); pdf.line(margin,16,PW-margin,16);
             let y=topStart;
+
             for (let i=0;i<photos.length;i+=2) {
                 if (y+cellH+20>PH-margin) { pdf.addPage(); y=margin; }
+
+                // Left photo
                 const left=photos[i];
-                pdf.addImage(left.dataUrl,'JPEG',margin,y,cellW,cellH,'','FAST');
+                const leftDims = await getImageDimensions(left.dataUrl);
+                const leftFit = calculateFitDimensions(leftDims.width, leftDims.height, availableW, availableH);
+                const leftX = margin + imgPadding + (availableW - leftFit.width) / 2;
+                const leftY = y + imgPadding + (availableH - leftFit.height) / 2;
+
+                // Draw border for left photo
+                pdf.setDrawColor(255,215,0); pdf.setLineWidth(1);
+                pdf.rect(margin,y,cellW,cellH);
+                // Add left photo centered and fitted
+                pdf.addImage(left.dataUrl,'JPEG',leftX,leftY,leftFit.width,leftFit.height,'','FAST');
                 pdf.setFontSize(8); pdf.setFont(undefined,'normal'); pdf.setTextColor(50,50,50);
                 pdf.text('Photo '+left.idx+': '+left.name,margin,y+cellH+4,{maxWidth:cellW});
                 if (left.description){pdf.setFontSize(7);pdf.setTextColor(80,80,80);pdf.text(left.description,margin,y+cellH+8,{maxWidth:cellW});}
+
+                // Right photo (if exists)
                 if (photos[i+1]) {
                     const right=photos[i+1],x2=margin+cellW+margin;
-                    pdf.addImage(right.dataUrl,'JPEG',x2,y,cellW,cellH,'','FAST');
+                    const rightDims = await getImageDimensions(right.dataUrl);
+                    const rightFit = calculateFitDimensions(rightDims.width, rightDims.height, availableW, availableH);
+                    const rightX = x2 + imgPadding + (availableW - rightFit.width) / 2;
+                    const rightY = y + imgPadding + (availableH - rightFit.height) / 2;
+
+                    // Draw border for right photo
+                    pdf.setDrawColor(255,215,0); pdf.setLineWidth(1);
+                    pdf.rect(x2,y,cellW,cellH);
+                    // Add right photo centered and fitted
+                    pdf.addImage(right.dataUrl,'JPEG',rightX,rightY,rightFit.width,rightFit.height,'','FAST');
                     pdf.setFontSize(8);pdf.setFont(undefined,'normal');pdf.setTextColor(50,50,50);
                     pdf.text('Photo '+right.idx+': '+right.name,x2,y+cellH+4,{maxWidth:cellW});
                     if (right.description){pdf.setFontSize(7);pdf.setTextColor(80,80,80);pdf.text(right.description,x2,y+cellH+8,{maxWidth:cellW});}
@@ -318,7 +388,7 @@
     function autoResize(ta) { ta.style.height='24px'; ta.style.height=ta.scrollHeight+'px'; }
     function initAutoResize(ta) { ta.style.height='24px'; ta.addEventListener('input',function(){autoResize(this);}); }
     document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('textarea.auto-resize').forEach(initAutoResize);});
-    const lineCounters = { briefHistory:1, logBookRemarks:1, chronologyEvents:1, observation:1, actionTaken:1, conclusion:1 };
+    const lineCounters = { briefHistory:1, logBookRemarks:1, ddsMessage:1, chronologyEvents:1, observation:1, actionTaken:1, conclusion:1 };
     function addLine(sectionId) {
         lineCounters[sectionId]++;
         const container=document.getElementById(sectionId), lineNumber=lineCounters[sectionId];
@@ -346,6 +416,11 @@
         // Show all pages and photo panels
         document.querySelectorAll('.page').forEach(p => p.classList.add('active'));
         document.querySelectorAll('.photo-panel').forEach(p => p.classList.add('active'));
+
+        // Add pdf-mode class for consistent styling
+        const reportPage = document.getElementById('reportPage');
+        reportPage.classList.add('pdf-mode');
+
         // Swap textareas to readable divs
         const swaps = [];
         document.querySelectorAll('textarea.auto-resize').forEach(function(ta) {
@@ -357,19 +432,27 @@
             mirror.style.whiteSpace = 'pre-wrap';
             mirror.style.fontSize   = '13px';
             mirror.style.padding    = '2px 5px';
+            mirror.style.color = '#000';
             mirror.innerHTML = ta.value || '';
             ta.parentNode.insertBefore(mirror, ta);
             ta.style.display = 'none';
             swaps.push({ ta, mirror });
         });
+
         // Open print dialog
         window.print();
+
         // Restore textareas
         swaps.forEach(function({ ta, mirror }) { ta.style.display=''; mirror.parentNode.removeChild(mirror); });
+
+        // Remove pdf-mode class
+        reportPage.classList.remove('pdf-mode');
+
         // Restore active page
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         const m = document.querySelector('.page-nav-btn.active').getAttribute('onclick').match(/'(\w+)'/);
         if (m) document.getElementById(m[1]).classList.add('active');
+
         // Restore active photo panel
         document.querySelectorAll('.photo-panel').forEach(p => p.classList.remove('active'));
         const activePhotoBtn = document.querySelector('.photo-tab-btn.active');
@@ -390,10 +473,13 @@
             document.querySelectorAll('#briefHistory textarea').forEach((ta,i)=>{if(ta.value.trim())rows.push([(i+1)+'. '+ta.value]);});
             rows.push([]);
             rows.push(['LP & TRAIN PARTICULARS']);
-            [['LP Name','lpName'],['DOP','dop'],['Train No','trainNo'],['BPC No','bpcno'],['Loco No','locono'],['BPC %','bpc%'],['Grade','grade'],['Load','load'],['Group CLI Name','GCLI'],['BPC Date','bpcDate'],['Last Counselling','lastCounselling'],['Schedule','schedule']].forEach(([l,id])=>{const el=document.getElementById(id);if(el&&el.value)rows.push([l,el.value]);});
+            [['LP Name','lpName'],['LP CMS ID','lpCmsId'],['DOP','dop'],['Train No','trainNo'],['BPC No','bpcno'],['Loco No','locono'],['BPC %','bpc%'],['Grade','grade'],['Load','load'],['Group CLI Name','GCLI'],['ALP NAME/HQ','alpname'],['ALP CMS ID','alpCmsId'],['BPC Date','bpcDate'],['Last Counselling','lastCounselling'],['Schedule','schedule']].forEach(([l,id])=>{const el=document.getElementById(id);if(el&&el.value)rows.push([l,el.value]);});
             rows.push([]);
             rows.push(['LOG BOOK REMARKS']);
             document.querySelectorAll('#logBookRemarks textarea').forEach((ta,i)=>{if(ta.value.trim())rows.push([(i+1)+'. '+ta.value]);});
+            rows.push([]);
+            rows.push(['DDS MESSAGE']);
+            document.querySelectorAll('#ddsMessage textarea').forEach((ta,i)=>{if(ta.value.trim())rows.push([(i+1)+'. '+ta.value]);});
             rows.push([]);
             rows.push(['CHRONOLOGY OF EVENTS']);
             document.querySelectorAll('#chronologyEvents textarea').forEach((ta,i)=>{if(ta.value.trim())rows.push([(i+1)+'. '+ta.value]);});
@@ -421,7 +507,13 @@
             const mirror=document.createElement('div'); mirror.className='textarea-mirror';
             if(ta.classList.contains('case-details-textarea')) mirror.classList.add('case-details-textarea');
             if(ta.classList.contains('line-input')) mirror.classList.add('line-input');
-            mirror.style.width=ta.offsetWidth+'px'; mirror.style.whiteSpace='pre-wrap'; mirror.innerHTML=ta.value;
+            mirror.style.width=ta.offsetWidth+'px';
+            mirror.style.whiteSpace='pre-wrap';
+            mirror.style.fontSize='13px';
+            mirror.style.padding='2px 5px';
+            mirror.style.color='#000';
+            mirror.style.minHeight='18px';
+            mirror.innerHTML=ta.value || '';
             ta.parentNode.insertBefore(mirror,ta); ta.style.display='none'; swaps.push({ta,mirror});
         });
         return swaps;
@@ -688,7 +780,7 @@
         document.querySelectorAll('#reportPage input[type="text"], #reportPage input[type="date"], #reportPage textarea').forEach(function(f){ f.value = ''; if(f.classList.contains('auto-resize')) autoResize(f); });
         document.getElementById('signatureImage').src = '';
         document.getElementById('signaturePreview').style.display = 'none';
-        ['briefHistory','logBookRemarks','chronologyEvents','observation','actionTaken','conclusion'].forEach(function(sid){
+        ['briefHistory','logBookRemarks','ddsMessage','chronologyEvents','observation','actionTaken','conclusion'].forEach(function(sid){
             var container = document.getElementById(sid);
             container.innerHTML = '';
             lineCounters[sid] = 1;
@@ -714,5 +806,43 @@
         ds.className = 'draft-status';
     }
     </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
 </body>
 </html>
