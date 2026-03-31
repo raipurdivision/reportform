@@ -8,6 +8,9 @@
 
 
 
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -115,8 +118,13 @@
         .photo-remove-btn { position: absolute; top: 5px; right: 5px; background: rgba(220,53,69,0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
         .photo-remove-btn:hover { background: #c82333; }
         .photo-empty { grid-column: 1 / -1; text-align: center; color: #aaa; font-size: 13px; padding: 40px 0; }
-        .pdf-mode .section-title { background: transparent !important; color: #003366 !important; border-bottom: 1px solid #003366; }
-        .pdf-mode .section, .pdf-mode .section.case-details { border: none !important; }
+        .pdf-mode .section-title { background: transparent !important; color: #003366 !important; text-decoration: underline; border: none !important; padding-left: 0 !important; }
+        .pdf-mode .section, .pdf-mode .section.case-details { border: none !important; background: transparent !important; border-radius: 0 !important; }
+        .pdf-mode .section-body { background: transparent !important; }
+        .pdf-mode .lp-grid .form-group { background: transparent !important; border: none !important; border-radius: 0 !important; padding: 2px 4px !important; }
+        .pdf-mode .lp-grid { gap: 2px !important; }
+        .pdf-mode input[type="text"], .pdf-mode input[type="date"] { background: transparent !important; border: none !important; border-radius: 0 !important; outline: none !important; box-shadow: none !important; }
+        .pdf-mode #reportDateRow > div { background: transparent !important; border: none !important; }
         .pdf-mode .no-pdf { display: none !important; }
         @media print {
             body { background: white !important; padding: 0 !important; margin: 0 !important; }
@@ -137,6 +145,34 @@
         .format-btn:hover { background: #e0e0e0; transform: scale(1.05); }
         .format-btn.color-picker { padding: 2px; width: 40px; }
         .format-btn input[type="color"] { border: none; width: 100%; height: 100%; cursor: pointer; border-radius: 3px; }
+
+        /* ── LP & Train: preserve borders in PDF mode ── */
+        .pdf-mode #sectionLPTrain {
+            border: 2px solid #003366 !important;
+            background: #f8f9fa !important;
+            border-radius: 8px !important;
+        }
+        .pdf-mode #sectionLPTrain .section-title {
+            background: #808080 !important;
+            color: #003366 !important;
+            text-decoration: none !important;
+            padding: 5px 10px !important;
+            border-radius: 8px 8px 0 0 !important;
+        }
+        .pdf-mode #sectionLPTrain .lp-grid .form-group {
+            border: 1.5px solid #003366 !important;
+            border-radius: 5px !important;
+            padding: 3px 6px !important;
+            background: #eef3fa !important;
+        }
+        .pdf-mode #sectionLPTrain input[type="text"],
+        .pdf-mode #sectionLPTrain input[type="date"] {
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            height: 28px !important;
+        }
         @media (max-width: 768px) { .lp-grid { grid-template-columns: 1fr; } .photo-grid { grid-template-columns: 1fr; } .container { padding: 20px; } }
         /* ── Voice Typing ── */
         .voice-bar { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:14px; background:#eef3fa; border:2px solid #003366; border-radius:8px; padding:8px 16px; flex-wrap:wrap; }
@@ -188,7 +224,7 @@
                     <div class="section-title"><span>Brief History</span><div class="button-group"><button type="button" class="add-line-btn" onclick="addLine('briefHistory')">+</button></div></div>
                     <div class="section-body"><div class="expandable-container" id="briefHistory"><div class="expandable-line" data-index="1"><span class="line-number">1.</span><textarea class="line-input auto-resize" name="briefHistory_1" placeholder="Enter history line 1"></textarea><button type="button" class="line-remove-btn" onclick="removeThisLine(this,'briefHistory')" title="Remove">−</button></div></div></div>
                 </div>
-                <div class="section">
+                <div class="section" id="sectionLPTrain">
                     <div class="section-title"><span>LP &amp; Train Particulars</span></div>
                     <div class="section-body"><div class="lp-grid">
                         <div class="form-group"><label for="lpNamehq">LP Name/HQ</label><input type="text" id="lpNamehq" name="lpNamehq"></div>
@@ -239,7 +275,7 @@
                         <label class="signature-upload">Upload Signature<input type="file" id="signatureFile" accept="image/*" onchange="previewSignature(event)"></label>
                         <div class="signature-preview" id="signaturePreview" style="display:none;"><img id="signatureImage" src="" alt="Signature"></div>
                         <div class="form-group" style="margin-top:8px;">
-                            <label style="font-size:12px;color:#003366;font-weight:600;margin-bottom:3px;display:block;">CLI NAME</label>
+                            <label class="no-pdf" style="font-size:12px;color:#003366;font-weight:600;margin-bottom:3px;display:block;">CLI NAME</label>
                             <input list="cliNameOptions" type="text" class="cli-name-input" id="cliName" name="cliName" placeholder="Select or type CLI NAME" style="width:300px;height:42px;font-size:15px;font-weight:600;">
                             <datalist id="cliNameOptions">
                                 <option value="A K REDDY/CLI/BIA">
@@ -523,7 +559,7 @@
             if (ta.classList.contains('case-details-textarea')) mirror.classList.add('case-details-textarea');
             if (ta.classList.contains('line-input'))            mirror.classList.add('line-input');
             mirror.style.minHeight  = '18px';
-            mirror.style.whiteSpace = 'pre-wrap';
+            mirror.style.whiteSpace = 'pre-wrap'; mirror.style.fontWeight = 'bold'; mirror.style.background = 'transparent';
             mirror.style.fontSize   = '13px';
             mirror.style.padding    = '2px 5px';
             mirror.innerHTML = ta.value || '';
@@ -589,7 +625,7 @@
             const mirror=document.createElement('div'); mirror.className='textarea-mirror';
             if(ta.classList.contains('case-details-textarea')) mirror.classList.add('case-details-textarea');
             if(ta.classList.contains('line-input')) mirror.classList.add('line-input');
-            mirror.style.width=ta.offsetWidth+'px'; mirror.style.whiteSpace='pre-wrap'; mirror.innerHTML=ta.value;
+            mirror.style.width=ta.offsetWidth+'px'; mirror.style.whiteSpace='pre-wrap'; mirror.style.fontWeight='bold'; mirror.style.background='transparent'; mirror.innerHTML=ta.value;
             ta.parentNode.insertBefore(mirror,ta); ta.style.display='none'; swaps.push({ta,mirror});
         });
         return swaps;
