@@ -6,6 +6,8 @@
 
 
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,6 +116,7 @@
         .photo-remove-btn:hover { background: #c82333; }
         .photo-empty { grid-column: 1 / -1; text-align: center; color: #aaa; font-size: 13px; padding: 40px 0; }
         .pdf-mode .section-title { background: transparent !important; color: #003366 !important; border-bottom: 1px solid #003366; }
+        .pdf-mode .section, .pdf-mode .section.case-details { border: none !important; }
         .pdf-mode .no-pdf { display: none !important; }
         @media print {
             body { background: white !important; padding: 0 !important; margin: 0 !important; }
@@ -603,110 +606,91 @@
             const content = document.getElementById('reportPage');
             content.classList.add('pdf-mode');
             swaps = swapTextareasForPDF();
-            await new Promise(r => setTimeout(r, 100));
+            await new Promise(r => setTimeout(r, 120));
 
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfW = 210, pdfH = 297, margin = 5, contentWidth = pdfW - (2 * margin);
+            const pdfW = 210, pdfH = 297, margin = 8, contentWidth = pdfW - (2 * margin);
+            const pageUsableH = pdfH - margin * 2;
 
-            /* ── PAGE 1: everything up to & including Observation ── */
-            // Hide page-2 sections temporarily
-            const page2Sections = ['sectionActionTaken','sectionConclusion','signatureSection','reportDateRow'];
-            page2Sections.forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
+            // Tracks current Y position on the active PDF page
+            const cur = { y: margin };
 
-            const canvas1 = await html2canvas(content, {
-                scale: 3, useCORS: true, logging: false,
-                backgroundColor: '#ffffff', windowWidth: 1000,
-                windowHeight: content.scrollHeight
-            });
-            const imgH1 = (canvas1.height * contentWidth) / canvas1.width;
-            // Fit page 1 content into first PDF page (scale down if taller than one page)
-            if (imgH1 <= pdfH) {
-                pdf.addImage(canvas1.toDataURL('image/png'), 'PNG', margin, margin, contentWidth, imgH1, '', 'FAST');
-            } else {
-                // Multi-page for page-1 content
-                let leftH = imgH1, pos = 0;
-                pdf.addImage(canvas1.toDataURL('image/png'), 'PNG', margin, pos, contentWidth, imgH1, '', 'FAST');
-                leftH -= pdfH;
-                while (leftH > 0) { pos = leftH - imgH1; pdf.addPage(); pdf.addImage(canvas1.toDataURL('image/png'), 'PNG', margin, pos, contentWidth, imgH1, '', 'FAST'); leftH -= pdfH; }
+            // Render one DOM element onto PDF — keeps the whole section together (no mid-section cuts)
+            async function renderToPDF(el) {
+                if (!el || el.offsetHeight === 0) return;
+                const canvas = await html2canvas(el, {
+                    scale: 3, useCORS: true, logging: false,
+                    backgroundColor: '#ffffff', windowWidth: 1000
+                });
+                const imgH = (canvas.height * contentWidth) / canvas.width;
+                const dataUrl = canvas.toDataURL('image/png');
+
+                if (imgH <= pageUsableH) {
+                    // KEEP TOGETHER: if section won't fully fit on remaining space, push to next page
+                    if (cur.y + imgH > pdfH - margin && cur.y > margin + 20) {
+                        pdf.addPage();
+                        cur.y = margin;
+                    }
+                    pdf.addImage(dataUrl, 'PNG', margin, cur.y, contentWidth, imgH, '', 'FAST');
+                    cur.y += imgH + 3;
+                } else {
+                    // Section taller than one full page — start on fresh page, let it span naturally
+                    if (cur.y > margin + 20) { pdf.addPage(); cur.y = margin; }
+                    pdf.addImage(dataUrl, 'PNG', margin, cur.y, contentWidth, imgH, '', 'FAST');
+                    let remaining = imgH - (pdfH - cur.y);
+                    while (remaining > 0) {
+                        pdf.addPage();
+                        pdf.addImage(dataUrl, 'PNG', margin, -(imgH - remaining), contentWidth, imgH, '', 'FAST');
+                        remaining -= pdfH;
+                    }
+                    cur.y = pdfH + remaining + 3;
+                }
             }
 
-            // Restore page-2 sections, hide page-1 sections for page 2 capture
-            page2Sections.forEach(id => { const el=document.getElementById(id); if(el) el.style.display=''; });
+            // 1. Header
+            await renderToPDF(document.querySelector('#reportPage .header'));
 
-            /* ── PAGE 2: Action Taken, Conclusion, Signature ── */
-            // Build a temporary wrapper with only page-2 elements
-            const page2Wrapper = document.createElement('div');
-            page2Wrapper.style.cssText = 'background:#fff;padding:10px 20px;width:960px;font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;';
+            // 2. Each form section — natural flow (no forced page breaks)
+            const sections = document.querySelectorAll('#reportPage .section');
+            for (const section of sections) {
+                await renderToPDF(section);
+            }
 
-            // Header hidden on page 2 as requested
-            // const hdrClone = document.querySelector('#reportPage .header').cloneNode(true);
-            // page2Wrapper.appendChild(hdrClone);
+            // 3. Signature section
+            await renderToPDF(document.getElementById('signatureSection'));
 
-            // Continued label hidden (header hidden on page 2)
-            // const contLabel = document.createElement('div');
-            // contLabel.style.cssText = 'font-size:11px;color:#888;text-align:right;margin-bottom:6px;';
-            // contLabel.textContent = '— Continued —';
-            // page2Wrapper.appendChild(contLabel);
-
-            ['sectionActionTaken','sectionConclusion','signatureSection'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) page2Wrapper.appendChild(el.cloneNode(true));
-            });
-
-            // Add Report Date BELOW Conclusion & Responsibility section
-            const dateRowEl = document.querySelector('.report-date-row');
+            // 4. Date row — convert date input to readable text span for capture
+            const dateRowEl = document.getElementById('reportDateRow');
             if (dateRowEl) {
-                const dateClone = dateRowEl.cloneNode(true);
-                dateClone.style.cssText = 'display:flex;justify-content:flex-start;margin-top:18px;margin-bottom:6px;';
-                const dateInput = dateClone.querySelector('input[type="date"]');
+                const dateInput = dateRowEl.querySelector('input[type="date"]');
+                let span = null;
                 if (dateInput) {
-                    const rawVal = document.getElementById('reportDate').value;
+                    const rawVal = dateInput.value;
                     let displayVal = rawVal;
                     if (rawVal) {
                         const d = new Date(rawVal + 'T00:00:00');
                         displayVal = d.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
                     }
-                    const span = document.createElement('span');
-                    span.style.cssText = 'font-size:16px;font-weight:700;color:#003399;padding:2px 8px;display:inline-flex;align-items:center;';
+                    span = document.createElement('span');
+                    span.style.cssText = 'font-size:14px;font-weight:700;color:#003399;padding:2px 8px;display:inline-flex;align-items:center;';
                     span.textContent = displayVal || 'NOT SET';
                     dateInput.parentNode.replaceChild(span, dateInput);
                 }
-                page2Wrapper.appendChild(dateClone);
-            }
-
-            document.body.appendChild(page2Wrapper);
-            const canvas2 = await html2canvas(page2Wrapper, {
-                scale: 3, useCORS: true, logging: false,
-                backgroundColor: '#ffffff', windowWidth: 1000,
-                windowHeight: page2Wrapper.scrollHeight
-            });
-            document.body.removeChild(page2Wrapper);
-
-            pdf.addPage();
-            const imgH2 = (canvas2.height * contentWidth) / canvas2.width;
-            if (imgH2 <= pdfH) {
-                pdf.addImage(canvas2.toDataURL('image/png'), 'PNG', margin, margin, contentWidth, imgH2, '', 'FAST');
-            } else {
-                let leftH = imgH2, pos = 0;
-                pdf.addImage(canvas2.toDataURL('image/png'), 'PNG', margin, pos, contentWidth, imgH2, '', 'FAST');
-                leftH -= pdfH;
-                while (leftH > 0) { pos = leftH - imgH2; pdf.addPage(); pdf.addImage(canvas2.toDataURL('image/png'), 'PNG', margin, pos, contentWidth, imgH2, '', 'FAST'); leftH -= pdfH; }
+                await renderToPDF(dateRowEl);
+                if (span && dateInput) span.parentNode.replaceChild(dateInput, span);
             }
 
             restoreTextareas(swaps); swaps = [];
             await addPhotoPagesToPDF(pdf);
 
-            // ── ADD PAGE NUMBERS TO EVERY PAGE ──
+            // Page numbers only — footer label removed
             const totalPages = pdf.getNumberOfPages();
             for (let pg = 1; pg <= totalPages; pg++) {
                 pdf.setPage(pg);
-                pdf.setDrawColor(180, 180, 180);
-                pdf.line(margin, pdfH - 8, pdfW - margin, pdfH - 8);
                 pdf.setFontSize(9);
                 pdf.setFont(undefined, 'normal');
-                pdf.setTextColor(100, 100, 100);
-                pdf.text('RAIPUR DIVISION TROUBLE REPORT', margin, pdfH - 4);
+                pdf.setTextColor(130, 130, 130);
                 pdf.text('Page ' + pg + ' of ' + totalPages, pdfW - margin, pdfH - 4, { align: 'right' });
             }
 
@@ -715,16 +699,12 @@
             content.classList.remove('pdf-mode');
             buttons.forEach(btn => btn.style.display = '');
             submitBtn.textContent = originalTxt; submitBtn.disabled = false;
-            alert('✅ PDF generated successfully!\nPage 1: Case Details → Observation\nPage 2: Action Taken, Conclusion & Signature\nPage 3+: Photos (6 per page)');
+            alert('\u2705 PDF generated! Sections auto-move to next page if they don\'t fit.');
         } catch (err) {
             console.error(err); alert('Error generating PDF: ' + err.message);
             if (swaps.length) restoreTextareas(swaps);
             document.getElementById('reportPage').classList.remove('pdf-mode');
             buttons.forEach(btn => btn.style.display = '');
-            // Restore any hidden sections
-            ['sectionActionTaken','sectionConclusion','signatureSection'].forEach(id => {
-                const el = document.getElementById(id); if(el) el.style.display = '';
-            });
             submitBtn.textContent = originalTxt; submitBtn.disabled = false;
         }
     });
