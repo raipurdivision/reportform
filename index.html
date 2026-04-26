@@ -12,6 +12,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -243,8 +244,9 @@
                         <div class="form-group"><label for="lpNamehq">LP Name/HQ</label><input type="text" id="lpNamehq" name="lpNamehq"></div>
                         <div class="form-group"><label for="dop">Train No.</label><input type="text" id="trainno" name="trainno"></div>
                         <div class="form-group"><label for="dop">LP CMS ID</label><input type="text" id="lpcmsid" name="lpcmsid"></div>
-                        <div class="form-group"><label for="trainNo">Grade</label><input type="text" id="grade" name="trainNo"></div>
-                        <div class="form-group"><label for="bpcno">Loco No</label><input type="text" id="locono" name="locono"></div>
+                        <div class="form-group"><label for="locono">Loco No</label><input type="text" id="locono" name="locono"></div>
+                        <div class="form-group"><label for="grade">Grade</label><input type="text" id="grade" name="grade"></div>
+                        <div class="form-group"><label for="shed">Shed</label><input type="text" id="shed" name="shed"></div>
                         <div class="form-group"><label for="locono">DOP AS LP</label><input type="text" id="doplp" name="doplp"></div>
                         <div class="form-group"><label for="bpc%">Load</label><input type="text" id="load" name="load"></div>
                         <div class="form-group"><label for="grade">LP Group CLI</label><input type="text" id="lpgcli" name="grade"></div>
@@ -254,6 +256,7 @@
                          <div class="form-group"><label for="dop">ALP CMS ID</label><input type="text" id="alpcmsid" name="alpcmsid"></div>
                         <div class="form-group"><label for="lastCounselling">LP Last Counselling</label><input type="date" id="lastCounselling" name="lastCounselling"></div>
                         <div class="form-group"><label for="schedule">Schedule</label><input type="text" id="schedule" name="schedule"></div>
+                        <div class="form-group"><label for="inspectionDetails">Inspection Details</label><input type="text" id="inspectionDetails" name="inspectionDetails"></div>
                     </div></div>
                 </div>
                 <div class="section">
@@ -627,7 +630,7 @@
             document.querySelectorAll('#briefHistory textarea').forEach((ta,i)=>{if(ta.value.trim())rows.push([(i+1)+'. '+ta.value]);});
             rows.push([]);
             rows.push(['LP & TRAIN PARTICULARS']);
-            [['LP Name','lpName'],['DOP','dop'],['Train No','trainNo'],['BPC No','bpcno'],['Loco No','locono'],['BPC %','bpc%'],['Grade','grade'],['Load','load'],['Group CLI Name','GCLI'],['BPC Date','bpcDate'],['Last Counselling','lastCounselling'],['Schedule','schedule']].forEach(([l,id])=>{const el=document.getElementById(id);if(el&&el.value)rows.push([l,el.value]);});
+            [['LP Name','lpName'],['DOP','dop'],['Train No','trainNo'],['BPC No','bpcno'],['Loco No','locono'],['Shed','shed'],['BPC %','bpc%'],['Grade','grade'],['Load','load'],['Group CLI Name','GCLI'],['BPC Date','bpcDate'],['Last Counselling','lastCounselling'],['Schedule','schedule'],['Inspection Details','inspectionDetails']].forEach(([l,id])=>{const el=document.getElementById(id);if(el&&el.value)rows.push([l,el.value]);});
             rows.push([]);
             rows.push(['LOG BOOK REMARKS']);
             document.querySelectorAll('#logBookRemarks textarea').forEach((ta,i)=>{if(ta.value.trim())rows.push([(i+1)+'. '+ta.value]);});
@@ -1192,6 +1195,8 @@
             const alpcmsid      = document.getElementById('alpcmsid').value || '';
             const lastCounselling = document.getElementById('lastCounselling').value || '';
             const schedule      = document.getElementById('schedule').value || '';
+            const shed          = document.getElementById('shed').value || '';
+            const inspectionDetails = document.getElementById('inspectionDetails').value || '';
 
             // Collect multi-line sections
             function getLines(sectionId) {
@@ -1233,6 +1238,8 @@
                 'ALP CMS ID: ' + alpcmsid,
                 'Last Counselling: ' + lastCounselling,
                 'Schedule: ' + schedule,
+                'Shed: ' + shed,
+                'Inspection Details: ' + inspectionDetails,
                 '--- CASE DETAILS ---',
                 caseDetails,
                 '--- BRIEF HISTORY ---',
