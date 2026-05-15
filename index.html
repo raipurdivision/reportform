@@ -18,6 +18,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -242,10 +243,8 @@
             </div>
             <form id="locoReportForm">
                 <div class="section case-details">
-                    <div class="section-title"><span>Case Details</span></div>
-                    <div class="section-body" style="padding-left:0;padding-right:0;">
-                        <textarea id="caseDetails" name="caseDetails" class="case-details-textarea auto-resize" placeholder="Enter case details here..."></textarea>
-                    </div>
+                    <div class="section-title"><span>Case Details</span><div class="button-group"><button type="button" class="add-line-btn" onclick="addLine('caseDetails')">+</button></div></div>
+                    <div class="section-body"><div class="expandable-container" id="caseDetails"><div class="expandable-line" data-index="1"><span class="line-number">1.</span><textarea class="line-input auto-resize case-details-textarea" name="caseDetails_1" placeholder="Enter case details line 1"></textarea><button type="button" class="line-remove-btn" onclick="removeThisLine(this,'caseDetails')" title="Remove">−</button></div></div></div>
                 </div>
                 <div class="section">
                     <div class="section-title"><span>Brief History</span><div class="button-group"><button type="button" class="add-line-btn" onclick="addLine('briefHistory')">+</button></div></div>
@@ -610,7 +609,7 @@
         cliNameInput.addEventListener('change', checkCliOther);
         cliNameInput.addEventListener('keyup', checkCliOther);
     });
-    const lineCounters = { briefHistory:1, logBookRemarks:1, ddsmessage:1, chronologyEvents:1, observation:1, actionTaken:1, conclusion:1 };
+    const lineCounters = { caseDetails:1, briefHistory:1, logBookRemarks:1, ddsmessage:1, chronologyEvents:1, observation:1, actionTaken:1, conclusion:1 };
     function addLine(sectionId) {
         lineCounters[sectionId]++;
         const container=document.getElementById(sectionId), lineNumber=lineCounters[sectionId];
@@ -675,7 +674,8 @@
         try {
             const wb=XLSX.utils.book_new(), rows=[];
             rows.push(['LOCO TROUBLE REPORT']); rows.push([]);
-            const cd=document.getElementById('caseDetails').value;
+            const cdLines=[]; document.querySelectorAll('#caseDetails textarea').forEach((ta,i)=>{if(ta.value.trim())cdLines.push((i+1)+'. '+ta.value);});
+            const cd=cdLines.join('\n');
             if(cd){rows.push(['CASE DETAILS']);rows.push([cd]);rows.push([]);}
             rows.push(['BRIEF HISTORY']);
             document.querySelectorAll('#briefHistory textarea').forEach((ta,i)=>{if(ta.value.trim())rows.push([(i+1)+'. '+ta.value]);});
@@ -1099,7 +1099,7 @@
         document.querySelectorAll('#reportPage input[type="text"], #reportPage input[type="date"], #reportPage textarea').forEach(function(f){ f.value = ''; if(f.classList.contains('auto-resize')) autoResize(f); });
         document.getElementById('signatureImage').src = '';
         document.getElementById('signaturePreview').style.display = 'none';
-        ['briefHistory','logBookRemarks','ddsmessage','chronologyEvents','observation','actionTaken','conclusion'].forEach(function(sid){
+        ['caseDetails','briefHistory','logBookRemarks','ddsmessage','chronologyEvents','observation','actionTaken','conclusion'].forEach(function(sid){
             var container = document.getElementById(sid);
             container.innerHTML = '';
             lineCounters[sid] = 1;
@@ -1383,7 +1383,7 @@
 
         try {
             // Gather all form fields
-            const caseDetails   = document.getElementById('caseDetails').value || '';
+            const caseDetails   = getLines('caseDetails') || '';
             const _cliRaw       = document.getElementById('cliName').value || '';
             const cliName       = (_cliRaw.trim().toUpperCase() === 'OTHERS')
                                     ? (document.getElementById('otherCliName').value.trim() || 'OTHERS')
