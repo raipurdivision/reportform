@@ -19,6 +19,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1358,7 +1359,7 @@
     /* ═══════════════════════════════════════════════
        SAVE TO GOOGLE SHEET
     ═══════════════════════════════════════════════ */
-    const SHEET_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzhIfpDtINRIZiEU2xV7HHx8wl3y4bs4HVCrabyvlUiRF-DksteGASrHwu0dKJfUzKSPA/exec';
+    const SHEET_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx7WDM2HP5ukVhVtQCS2fwdJ2BvKnv9xszb8gMMK273j90Njwb5_nmtfgikZSdGYReciw/exec';
 
     // Tracks whether data has been submitted to Google Sheet in this session
     let isDataSubmitted = false;
@@ -1423,47 +1424,44 @@
             const actionTaken       = getLines('actionTaken');
             const conclusion        = getLines('conclusion');
 
-            // Build URL-encoded form data
+            // Build URL-encoded form data — each field in its own separate column
+            // Sheet column order (App Script must map these keys):
+            //   Col1=Timestamp(auto by AppScript), Col2=cliName, Col3=date, Col4=lpName,
+            //   Col5=locoNo, Col6=trainNo, Col7=lpcmsid, Col8=grade, Col9=doplp,
+            //   Col10=load, Col11=lpgcli, Col12=bpcdetail, Col13=alpnamehq,
+            //   Col14=bpcDate, Col15=alpcmsid, Col16=lastCounselling,
+            //   Col17=schedule, Col18=shed, Col19=inspectionDetails,
+            //   Col20=caseDetails, Col21=briefHistory, Col22=logBookRemarks,
+            //   Col23=ddsMessage, Col24=chronologyEvents, Col25=observation,
+            //   Col26=actionTaken, Col27=conclusion
             const params = new URLSearchParams();
-            params.append('sheet',           'Loco Report');
-            params.append('cliName',         cliName);
-            params.append('date',            reportDate);
-            params.append('lpName',          lpNamehq);
-            params.append('locoNo',          locono);
-            params.append('trainNo',         trainno);
-            params.append('caseDetails',     caseDetails);
-            params.append('conclusion',      conclusion);
-            // Extra fields stored in caseDetails column as structured text
-            const extraDetails = [
-                'LP CMS ID: ' + lpcmsid,
-                'Grade: ' + grade,
-                'DOP as LP: ' + doplp,
-                'Load: ' + load,
-                'LP Group CLI: ' + lpgcli,
-                'BPC Details: ' + bpcdetail,
-                'ALP Name/HQ: ' + alpnamehq,
-                'BPC Date: ' + bpcDate,
-                'ALP CMS ID: ' + alpcmsid,
-                'Last Counselling: ' + lastCounselling,
-                'Schedule: ' + schedule,
-                'Home Shed: ' + shed,
-                'Trip Inspection Details: ' + inspectionDetails,
-                '--- CASE DETAILS ---',
-                caseDetails,
-                '--- BRIEF HISTORY ---',
-                briefHistory,
-                '--- LOG BOOK REMARKS ---',
-                logBookRemarks,
-                '--- DDS MESSAGE ---',
-                ddsMessage,
-                '--- CHRONOLOGY OF EVENTS ---',
-                chronologyEvents,
-                '--- OBSERVATION ---',
-                observation,
-                '--- ACTION TAKEN ---',
-                actionTaken
-            ].filter(Boolean).join('\n');
-            params.set('caseDetails', extraDetails);
+            params.append('sheet',              'Loco Report');
+            params.append('cliName',            cliName);          // Col2 — CLI Name (second column)
+            params.append('date',               reportDate);        // Col3
+            params.append('lpName',             lpNamehq);          // Col4
+            params.append('locoNo',             locono);            // Col5
+            params.append('trainNo',            trainno);           // Col6
+            params.append('lpcmsid',            lpcmsid);           // Col7
+            params.append('grade',              grade);             // Col8
+            params.append('doplp',              doplp);             // Col9
+            params.append('load',               load);              // Col10
+            params.append('lpgcli',             lpgcli);            // Col11
+            params.append('bpcdetail',          bpcdetail);         // Col12
+            params.append('alpnamehq',          alpnamehq);         // Col13
+            params.append('bpcDate',            bpcDate);           // Col14
+            params.append('alpcmsid',           alpcmsid);          // Col15
+            params.append('lastCounselling',    lastCounselling);   // Col16
+            params.append('schedule',           schedule);          // Col17
+            params.append('shed',               shed);              // Col18
+            params.append('inspectionDetails',  inspectionDetails); // Col19
+            params.append('caseDetails',        caseDetails);       // Col20
+            params.append('briefHistory',       briefHistory);      // Col21
+            params.append('logBookRemarks',     logBookRemarks);    // Col22
+            params.append('ddsMessage',         ddsMessage);        // Col23
+            params.append('chronologyEvents',   chronologyEvents);  // Col24
+            params.append('observation',        observation);       // Col25
+            params.append('actionTaken',        actionTaken);       // Col26
+            params.append('conclusion',         conclusion);        // Col27
 
             const response = await fetch(SHEET_SCRIPT_URL, {
                 method: 'POST',
